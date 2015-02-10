@@ -1,0 +1,44 @@
+<form name="form" novalidate class="css-form" action="/submit" method="post">
+
+    <input type="text" placeholder=defaultName ng-model="user.name" name="name" required="" username>
+        <span ng-show="form.$submitted || form.name.$touched">
+
+            <span ng-show="form.name.$error.required">
+                <small>Tell us your name</small>
+            </span>
+            <span ng-show="form.name.$pending.username">
+                Checking if this name is available...
+            </span>
+            <br>
+            <span ng-show="form.name.$error.username">
+                Username {{user.name}} has already been taken!
+            </span>
+            <br>
+
+        </span>
+
+    <br>
+    <p ng-show="user.name">Input UserName: {{user.name}}</p>
+    <br>
+
+    <input type="email" placeholder=defaultEmail ng-model="user.email" name="email" required="">
+        <span ng-show="form.$submitted || form.email.$touched">
+
+            <span ng-show="form.email.$error.required">
+                <small>Tell us your email</small>
+            </span>
+
+            <span ng-show="form.email.$error.email" ng-model-options="{updateOn:'blur'}">
+                <small>Illegal Email format</small>
+            </span>
+
+        </span>
+
+    <br>
+    <p ng-show="user.email">UserEmail: {{user.email}}</p>
+    <br>
+    <input type="button" value="reset" ng-click="reset(form)">
+
+    <input type="submit" value="register" ng-click="update(user)">
+</form>
+

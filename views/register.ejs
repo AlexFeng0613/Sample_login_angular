@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        .css-form input.ng-invalid.ng-touched {
+            background-color: #FA787E;
+        }
+
+        .css-form input.ng-valid.ng-touched {
+            background-color: #78FA89;
+        }
+    </style>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script>
+
+        angular.module('myApp',['ngRoute']).config(function($routeProvider){
+            $routeProvider.when('/',{
+                templateUrl:'registerTemplate',
+                controller:'Ctrl'
+            }).otherwise({
+                redirectTo:'/'
+            });
+
+        }).controller('Ctrl',function($scope){
+            $scope.reset = function(form){
+                if(form){
+                    form.$setPristine();
+                    form.$setUntouched();
+                    $scope.user.name = "";
+                    $scope.user.email = "";
+                }
+            };
+            $scope.update = function(user){
+                $scope.lastInputs = $scope.lastInputs || [];
+                $scope.lastInputs.push(user);
+            }
+        }).factory('searchNames', function ($http) {
+            return {
+                makeAjaxCall:function(query,callback){
+                    //var uri = 'query?username=' + query;
+                    //var uri = 'query/username/query';
+                    //$http.get(uri).success(function (data) {
+
+                    $http.post('query',{username:query}).success(function (data) {
+                        console.log(data);
+                        //console.log(data.usernames);
+                        //console.log(modelValue);
+                        var ifFound = data.result;
+                        //console.log(data.query.username);
+                        /*var usernames = data.usernames.map(function (users) {
+                            return users.name;
+                        });*/
+                        callback(ifFound);
+                    });
+                }
+        }
+
+        }).directive('username',function($q,searchNames){
+            return{
+                require:'ngModel',
+                link:function(scope,elm,attrs,ctrl){
+
+                    ctrl.$asyncValidators.username = function(modelValue,viewValue){
+                        if(ctrl.$isEmpty(modelValue)){
+                            return $q.when();
+                        }
+                        var def = $q.defer();
+                        searchNames.makeAjaxCall(modelValue,function(found){
+                            if(!found){
+                                def.resolve();
+                            } else {
+                                def.reject();
+                            }
+                        });
+                        return def.promise;
+                    };
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+    <% if (locals.title) { %>
+        <h1><%= title %></h1>
+    <% } %>
+
+    <div ng-view="" ng-init="defaultName='NAME HERE';defaultEmail='email@example.com'"></div>
+
+    <% results.forEach(function(result){ %>
+        <span>NAME:<%= result.name %> EMAIL:<%= result.email %></span><br>
+    <% }) %>
+</body>
+</html>
